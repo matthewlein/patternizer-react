@@ -7,8 +7,37 @@ import './css/index.css';
 class Header extends React.Component {
   render() {
     return (
-      <header>
-        <h1>Patternizer</h1>
+      <header className="site-header">
+        <h1 className="logo">
+          <img className="logo-svg" src="./images/logo.svg" alt="logo"/>
+          Patternizer
+        </h1>
+        <nav className="site-nav">
+          <ul className="site-nav__list">
+            <li className="site-nav__item">
+              <a className="button button--left" href="/">New Pattern</a>
+            </li>
+            <li className="site-nav__item">
+              <a className="button button--right"href="/">Duplicate</a>
+            </li>
+            <li className="site-nav__item">
+              <a className="button" href="/">Save</a>
+            </li>
+            <li className="site-nav__item">
+              <a className="button" href="/">Code</a>
+            </li>
+            <li className="site-nav__item dropdown" id="account">
+              <a className="button" href="/">Login</a>
+              <div className="menu">
+                <ul>
+                  <li><a href="/">My Patterns</a></li>
+                  <li><a href="/">My Account</a></li>
+                  <li><a href="/">Log Out</a></li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </nav>
       </header>
     )
   }
@@ -54,8 +83,6 @@ class Controls extends React.Component {
 
   render() {
     const stripes = this.props.stripes.map((stripe, idx) => {
-      const stripeClasses = [];
-
       return (
         <li
           key={stripe.id}
@@ -76,6 +103,16 @@ class Controls extends React.Component {
     return (
       <section className="controls">
         <section className="stripe-settings">
+          {this.props.currentStripe.color}<br/>
+          {this.props.currentStripe.plaid.toString()}<br/>
+
+          <RangeInput
+            name="opacity"
+            value={this.props.currentStripe.opacity}
+            min={0}
+            max={100}
+            onRangeChange={(event) => this.props.onRangeChange(event)}
+          />
           <RangeInput
             name="width"
             value={this.props.currentStripe.width}
@@ -83,14 +120,24 @@ class Controls extends React.Component {
             max={100}
             onRangeChange={(event) => this.props.onRangeChange(event)}
           />
-          <br/>
-          {this.props.currentStripe.opacity}<br/>
-          {this.props.currentStripe.color}<br/>
-          {this.props.currentStripe.gap}<br/>
-          {this.props.currentStripe.plaid}<br/>
+          <RangeInput
+            name="gap"
+            value={this.props.currentStripe.gap}
+            min={1}
+            max={200}
+            onRangeChange={(event) => this.props.onRangeChange(event)}
+          />
+          <RangeInput
+            name="offset"
+            value={this.props.currentStripe.offset}
+            min={0}
+            max={200}
+            onRangeChange={(event) => this.props.onRangeChange(event)}
+          />
+
 
           <section className="stripes">
-            <button className="stripes__new-button controls__button" type="button">＋New Stripe</button>
+            <button className="stripes__new-button controls__button" type="button" onClick={() => this.props.onNewStripe()}>＋New Stripe</button>
             <Sortable
               tag="ol"
               className="stripes__list"
@@ -152,6 +199,17 @@ class App extends React.Component {
     });
   }
 
+  onNewStripe() {
+    const newStripe = Object.assign({}, this.state.stripes[this.state.currentStripeIdx]);
+    newStripe.id = uniqueId()
+    let newStripes = this.state.stripes.slice();
+    newStripes.unshift(newStripe);
+    this.setState({
+      currentStripeIdx: 0,
+      stripes: newStripes
+    })
+  }
+
   onRangeChange(event) {
     const target = event.currentTarget;
     const value = Number(target.value);
@@ -190,6 +248,7 @@ class App extends React.Component {
             removeStripe={this.removeStripe.bind(this)}
             onInputChange={this.onInputChange.bind(this)}
             onRangeChange={this.onRangeChange.bind(this)}
+            onNewStripe={this.onNewStripe.bind(this)}
           />
           <PatternizerPreview/>
         </main>
