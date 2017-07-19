@@ -2,72 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import uniqueId from 'lodash/uniqueId';
 import Sortable from 'react-sortablejs';
+
 import './css/index.css';
+import PatternizerPreview from './components/PatternizerPreview'
+import RangeInput from './components/RangeInput'
+import Header from './components/Header'
 
-class Header extends React.Component {
-  render() {
-    return (
-      <header className="site-header">
-        <h1 className="logo">
-          <img className="logo-svg" src="./images/logo.svg" alt="logo"/>
-          Patternizer
-        </h1>
-        <nav className="site-nav">
-          <ul className="site-nav__list">
-            <li className="site-nav__item">
-              <a className="button button--left" href="/">New Pattern</a>
-            </li>
-            <li className="site-nav__item">
-              <a className="button button--right"href="/">Duplicate</a>
-            </li>
-            <li className="site-nav__item">
-              <a className="button" href="/">Save</a>
-            </li>
-            <li className="site-nav__item">
-              <a className="button" href="/">Code</a>
-            </li>
-            <li className="site-nav__item dropdown" id="account">
-              <a className="button" href="/">Login</a>
-              <div className="menu">
-                <ul>
-                  <li><a href="/">My Patterns</a></li>
-                  <li><a href="/">My Account</a></li>
-                  <li><a href="/">Log Out</a></li>
-                </ul>
-              </div>
-            </li>
-          </ul>
-        </nav>
-      </header>
-    )
-  }
-}
 
-class PatternizerPreview extends React.Component {
-  render() {
-    return (
-      <section className="preview">
-        <canvas className="preview__canvas" data-patternizer></canvas>
-      </section>
-    )
-  }
-}
-
-class RangeInput extends React.Component {
-  render() {
-    return (
-      <label className="controls__label">
-        <span className="controls__label-text">{this.props.name}</span>
-        <div className="controls__range">
-          <input className="range" value={this.props.value} name={this.props.name} type="range" onInput={(event) => this.props.onRangeChange(event)} onChange={(event) => this.props.onRangeChange(event)} min={this.props.min} max={this.props.max} />
-        </div>
-        <div className="controls__range-input-wrapper">
-          <input className="controls__range-input" value={this.props.value} name={this.props.name} type="number" onChange={(event) => this.props.onRangeChange(event)} min={this.props.min} max={this.props.max} />
-        </div>
-      </label>
-    )
-  }
-}
 
 class Controls extends React.Component {
   getStripeClasses(stripe, idx) {
@@ -135,7 +76,6 @@ class Controls extends React.Component {
             onRangeChange={(event) => this.props.onRangeChange(event)}
           />
 
-
           <section className="stripes">
             <button className="stripes__new-button controls__button" type="button" onClick={() => this.props.onNewStripe()}>＋New Stripe</button>
             <Sortable
@@ -150,7 +90,7 @@ class Controls extends React.Component {
           {this.props.bg}
         </section>
       </section>
-  )
+    )
   }
 }
 
@@ -233,11 +173,25 @@ class App extends React.Component {
     });
   }
 
+  stateFiltered() {
+    const visibleStripes = this.state.stripes.filter(stripe => (stripe.visible === true));
+    const stripesCleaned = visibleStripes.map((stripe) => {
+      const clone = Object.assign({}, stripe);
+      delete clone.visible;
+      delete clone.id;
+      return clone;
+    });
+    return {
+      stripes: stripesCleaned,
+      bg: this.state.bg,
+    };
+  }
+
   render() {
     return (
       <div className="app">
         <Header/>
-        <main>
+        <main className="main">
           <Controls
             bg={this.state.bg}
             stripes={this.state.stripes}
@@ -250,7 +204,7 @@ class App extends React.Component {
             onRangeChange={this.onRangeChange.bind(this)}
             onNewStripe={this.onNewStripe.bind(this)}
           />
-          <PatternizerPreview/>
+          <PatternizerPreview patternData={this.stateFiltered()} />
         </main>
       </div>
     );

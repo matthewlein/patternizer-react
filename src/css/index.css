@@ -995,4 +995,7 @@ input::-webkit-inner-spin-button {
 [v-cloak] {
   display: none;
 }
+.app-wrapper {
+  height: 100%;
+}
 /*# sourceMappingURL=frontend.css.map */
