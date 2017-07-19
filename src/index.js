@@ -6,9 +6,8 @@ import Sortable from 'react-sortablejs';
 import './css/index.css';
 import PatternizerPreview from './components/PatternizerPreview'
 import RangeInput from './components/RangeInput'
+import RotationInput from './components/RotationInput'
 import Header from './components/Header'
-
-
 
 class Controls extends React.Component {
   getStripeClasses(stripe, idx) {
@@ -28,15 +27,15 @@ class Controls extends React.Component {
         <li
           key={stripe.id}
           data-idx={idx}
-          onClick={(event) => this.props.onStripeClick(event)}
+          onClick={(e) => this.props.onStripeClick(e)}
           className={this.getStripeClasses(stripe, idx)}
         >
           <label className="stripe__visible-label">
-            <input className="stripe__visible-input" type="checkbox" name="visible" checked={stripe.visible} onChange={(event) => this.props.onInputChange(event, idx)}/>
+            <input className="stripe__visible-input" type="checkbox" name="visible" checked={stripe.visible} onChange={(e) => this.props.onInputChange(e, idx)}/>
             <div className="stripe__visible-box"></div>
           </label>
           <div className="stripes__item-color" style={{backgroundColor: stripe.color}}></div>
-          <button className="stripes__item-delete" type="button" data-idx={idx} onClick={(event) => this.props.removeStripe(event, idx)}>⨉</button>
+          <button className="stripes__item-delete" type="button" data-idx={idx} onClick={(e) => this.props.removeStripe(e, idx)}>⨉</button>
         </li>
       )
     })
@@ -44,6 +43,21 @@ class Controls extends React.Component {
     return (
       <section className="controls">
         <section className="stripe-settings">
+
+          <div className="flex col-2">
+            <div className="flex__col-1_2">
+              <RotationInput
+                value={this.props.currentStripe.rotation}
+                onRotationChange={(e) => this.props.onRotationChange(e)}
+                updateRotation={(e) => this.props.updateRotation(e)}
+              />
+            </div>
+            <div className="flex__col-1_2">
+
+            </div>
+          </div>
+
+
           {this.props.currentStripe.color}<br/>
           {this.props.currentStripe.plaid.toString()}<br/>
 
@@ -52,28 +66,28 @@ class Controls extends React.Component {
             value={this.props.currentStripe.opacity}
             min={0}
             max={100}
-            onRangeChange={(event) => this.props.onRangeChange(event)}
+            onRangeChange={(e) => this.props.onRangeChange(e)}
           />
           <RangeInput
             name="width"
             value={this.props.currentStripe.width}
             min={1}
             max={100}
-            onRangeChange={(event) => this.props.onRangeChange(event)}
+            onRangeChange={(e) => this.props.onRangeChange(e)}
           />
           <RangeInput
             name="gap"
             value={this.props.currentStripe.gap}
             min={1}
             max={200}
-            onRangeChange={(event) => this.props.onRangeChange(event)}
+            onRangeChange={(e) => this.props.onRangeChange(e)}
           />
           <RangeInput
             name="offset"
             value={this.props.currentStripe.offset}
             min={0}
             max={200}
-            onRangeChange={(event) => this.props.onRangeChange(event)}
+            onRangeChange={(e) => this.props.onRangeChange(e)}
           />
 
           <section className="stripes">
@@ -173,6 +187,24 @@ class App extends React.Component {
     });
   }
 
+  updateRotation(degrees) {
+    const newStripes = this.state.stripes.slice()
+    newStripes[this.state.currentStripeIdx].rotation = degrees;
+    this.setState({
+      stripes: newStripes
+    });
+  }
+
+  onRotationChange(event) {
+    const target = event.currentTarget;
+    const value = Number(target.value);
+    const newStripes = this.state.stripes.slice()
+    newStripes[this.state.currentStripeIdx].rotation = value;
+    this.setState({
+      stripes: newStripes
+    });
+  }
+
   stateFiltered() {
     const visibleStripes = this.state.stripes.filter(stripe => (stripe.visible === true));
     const stripesCleaned = visibleStripes.map((stripe) => {
@@ -203,6 +235,8 @@ class App extends React.Component {
             onInputChange={this.onInputChange.bind(this)}
             onRangeChange={this.onRangeChange.bind(this)}
             onNewStripe={this.onNewStripe.bind(this)}
+            onRotationChange={this.onRotationChange.bind(this)}
+            updateRotation={this.updateRotation.bind(this)}
           />
           <PatternizerPreview patternData={this.stateFiltered()} />
         </main>
