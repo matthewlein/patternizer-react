@@ -7,6 +7,7 @@ import './css/index.css';
 import PatternizerPreview from './components/PatternizerPreview'
 import RangeInput from './components/RangeInput'
 import RotationInput from './components/RotationInput'
+import ColorPicker from './components/ColorPicker'
 import Header from './components/Header'
 
 class Controls extends React.Component {
@@ -53,16 +54,18 @@ class Controls extends React.Component {
               />
             </div>
             <div className="flex__col-1_2">
+              <ColorPicker
+                name='color'
+                value={this.props.currentStripe.color}
+                onChange={(e) => this.props.onInputChange(e, this.props.currentStripeIdx)}
+                updateColor={(name, color) => this.props.updateColor(name, color, this.props.currentStripeIdx)}
+              />
               <label className="plaid__label controls__label" title="Stripes go vertically and horizontally">
                 Plaid
                 <input className="plaid__check" type="checkbox" name="plaid" checked={this.props.currentStripe.plaid} onChange={(e) => this.props.onInputChange(e, this.props.currentStripeIdx)} />
               </label>
             </div>
           </div>
-
-
-          {this.props.currentStripe.color}<br/>
-          {this.props.currentStripe.plaid.toString()}<br/>
 
           <RangeInput
             name="opacity"
@@ -75,7 +78,7 @@ class Controls extends React.Component {
             name="width"
             value={this.props.currentStripe.width}
             min={1}
-            max={100}
+            max={200}
             onRangeChange={(e) => this.props.onRangeChange(e)}
           />
           <RangeInput
@@ -93,19 +96,31 @@ class Controls extends React.Component {
             onRangeChange={(e) => this.props.onRangeChange(e)}
           />
 
-          <section className="stripes">
-            <button className="stripes__new-button controls__button" type="button" onClick={() => this.props.onNewStripe()}>＋New Stripe</button>
-            <Sortable
-              tag="ol"
-              className="stripes__list"
-              onChange={(order, sortable, evt) => this.props.onStripeOrderChange(order, sortable, evt)}
-            >
-              {stripes}
-            </Sortable>
-          </section>
-
-          {this.props.bg}
         </section>
+
+        <section className="stripes">
+          <button className="stripes__new-button controls__button" type="button" onClick={() => this.props.onNewStripe()}>＋New Stripe</button>
+          <Sortable
+            tag="ol"
+            className="stripes__list"
+            onChange={(order, sortable, evt) => this.props.onStripeOrderChange(order, sortable, evt)}
+          >
+            {stripes}
+          </Sortable>
+        </section>
+
+        <section className="background-settings">
+          <ColorPicker
+            name="Background Color"
+            value={this.props.bg}
+            top={true}
+            onChange={(e) => this.props.updateBackgroundColor(e)}
+            updateColor={(name, color) => this.props.updateBackgroundColor(null, color)}
+          />
+        </section>
+
+        {}
+
       </section>
     )
   }
@@ -198,6 +213,26 @@ class App extends React.Component {
     });
   }
 
+  updateBackgroundColor(event, color) {
+    let value;
+    if (event) {
+      value = event.target.value;
+    } else {
+      value = color;
+    }
+    this.setState({
+      bg: value
+    })
+  }
+
+  updateColor(name, color, idx) {
+    const newStripes = this.state.stripes.slice()
+    newStripes[idx][name] = color;
+    this.setState({
+      stripes: newStripes
+    });
+  }
+
   onRotationChange(event) {
     const target = event.currentTarget;
     const value = Number(target.value);
@@ -240,6 +275,8 @@ class App extends React.Component {
             onNewStripe={this.onNewStripe.bind(this)}
             onRotationChange={this.onRotationChange.bind(this)}
             updateRotation={this.updateRotation.bind(this)}
+            updateColor={this.updateColor.bind(this)}
+            updateBackgroundColor={this.updateBackgroundColor.bind(this)}
           />
           <PatternizerPreview patternData={this.stateFiltered()} />
         </main>

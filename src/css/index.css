@@ -745,6 +745,7 @@ input::-webkit-inner-spin-button {
 }
 
 .controls__label-text {
+  text-transform: capitalize;
   line-height: 1.6;
   display: block;
   width: 100%;
@@ -947,6 +948,7 @@ input::-webkit-inner-spin-button {
 }
 
 .color-picker__label-text {
+  text-transform: capitalize;
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;

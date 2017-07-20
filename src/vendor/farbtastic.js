@@ -97,20 +97,6 @@ $._farbtastic = function (container, options) {
       .find('*').attr(dim).css(dim).end()
       .find('div>*').css('position', 'absolute');
 
-    // IE Fix: Recreate canvas elements with doc.createElement and excanvas.
-    $.browser.msie || false && $('canvas', container).each(function () {
-      // Fetch info.
-      var attr = { 'class': $(this).attr('class'), style: this.getAttribute('style') },
-          e = document.createElement('canvas');
-      // Replace element.
-      $(this).before($(e).attr(attr)).remove();
-      // Init with explorerCanvas.
-      G_vmlCanvasManager && G_vmlCanvasManager.initElement(e);
-      // Set explorerCanvas elements dimensions and absolute positioning.
-      $(e).attr(dim).css(dim).css('position', 'absolute')
-        .find('*').attr(dim).css(dim);
-    });
-
     // Determine layout
     fb.radius = (options.width - options.wheelWidth) / 2 - 1;
     fb.square = Math.floor((fb.radius - options.wheelWidth / 2) * 0.7) - 1;
@@ -513,4 +499,4 @@ $._farbtastic = function (container, options) {
   if (!fb.color) fb.setColor('#808080');
 }
 
-})(jQuery);
+})(window.jQuery);
