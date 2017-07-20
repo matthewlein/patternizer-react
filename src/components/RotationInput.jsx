@@ -66,8 +66,8 @@ export default class RotationInput extends React.Component {
       top: rotatorRect.top + document.body.scrollTop,
       left: rotatorRect.left + document.body.scrollLeft
     }
-    let x = event.pageX - (rotatorRect.left + this.rCenter);
-    let y = event.pageY - (rotatorRect.top + this.rCenter);
+    let x = event.pageX - (rotatorOffset.left + this.rCenter);
+    let y = event.pageY - (rotatorOffset.top + this.rCenter);
     const hyp = Math.sqrt((x * x) + (y * y));
     const mult = this.rCenter / hyp;
 

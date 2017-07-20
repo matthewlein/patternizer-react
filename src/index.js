@@ -53,7 +53,10 @@ class Controls extends React.Component {
               />
             </div>
             <div className="flex__col-1_2">
-
+              <label className="plaid__label controls__label" title="Stripes go vertically and horizontally">
+                Plaid
+                <input className="plaid__check" type="checkbox" name="plaid" checked={this.props.currentStripe.plaid} onChange={(e) => this.props.onInputChange(e, this.props.currentStripeIdx)} />
+              </label>
             </div>
           </div>
 

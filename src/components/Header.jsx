@@ -1,11 +1,12 @@
 import React from 'react';
+import logo from '../images/logo.svg'
 
 export default class Header extends React.Component {
   render() {
     return (
       <header className="site-header">
         <h1 className="logo">
-          <img className="logo-svg" src="./images/logo.svg" alt="logo"/>
+          <img className="logo-svg" src={logo} alt="logo"/>
           Patternizer
         </h1>
         <nav className="site-nav">
