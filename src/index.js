@@ -69,13 +69,13 @@ class App extends React.Component {
 
   onNewStripe() {
     const newStripe = Object.assign({}, this.state.stripes[this.state.currentStripeIdx]);
-    newStripe.id = uniqueId()
+    newStripe.id = uniqueId();
     let newStripes = this.state.stripes.slice();
     newStripes.unshift(newStripe);
     this.setState({
       currentStripeIdx: 0,
       stripes: newStripes
-    })
+    });
   }
 
   onRangeChange(event) {
@@ -293,8 +293,6 @@ class App extends React.Component {
     );
   }
 }
-
-// ========================================
 
 function preparePatternData(data) {
   const newData = Object.assign({}, data);
