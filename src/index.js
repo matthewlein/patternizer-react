@@ -4,11 +4,12 @@ import uniqueId from 'lodash/uniqueId';
 import Sortable from 'react-sortablejs';
 
 import './css/index.css';
+import logo from './images/logo.svg'
+
 import PatternizerPreview from './components/PatternizerPreview'
 import RangeInput from './components/RangeInput'
 import RotationInput from './components/RotationInput'
 import ColorPicker from './components/ColorPicker'
-import Header from './components/Header'
 
 class App extends React.Component {
   constructor(props) {
@@ -174,7 +175,38 @@ class App extends React.Component {
 
     return (
       <div className="app">
-        <Header/>
+        <header className="site-header">
+          <h1 className="logo">
+            <img className="logo-svg" src={logo} alt="logo"/>
+            Patternizer
+          </h1>
+          <nav className="site-nav">
+            <ul className="site-nav__list">
+              <li className="site-nav__item">
+                <a className="button button--left" href="/">New Pattern</a>
+              </li>
+              <li className="site-nav__item">
+                <a className="button button--right"href="/">Duplicate</a>
+              </li>
+              <li className="site-nav__item">
+                <a className="button" href="/">Save</a>
+              </li>
+              <li className="site-nav__item">
+                <a className="button" href="/">Code</a>
+              </li>
+              <li className="site-nav__item dropdown" id="account">
+                <a className="button" href="/">Login</a>
+                <div className="menu">
+                  <ul>
+                    <li><a href="/">My Patterns</a></li>
+                    <li><a href="/">My Account</a></li>
+                    <li><a href="/">Log Out</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </header>
         <main className="main">
           <section className="controls">
             <section className="stripe-settings">
