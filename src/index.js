@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {combineReducers, createStore} from 'redux';
 import uniqueId from 'lodash/uniqueId';
 import Sortable from 'react-sortablejs';
 
@@ -12,69 +13,48 @@ import RotationInput from './components/RotationInput'
 import ColorPicker from './components/ColorPicker'
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      stripes: this.props.pattern.stripes,
-      bg: this.props.pattern.bg,
-      currentStripeIdx: 0
-    };
-  }
 
   getStripeClasses(stripe, idx) {
     const classes = ['stripes__item'];
-    if (idx === this.state.currentStripeIdx) {
+    if (idx === this.props.currentStripeIdx) {
       classes.push('stripes__item--active');
     }
-    if (!this.state.stripes[idx].visible) {
+    if (!this.props.stripes[idx].visible) {
       classes.push('stripes__item--hidden');
     }
     return classes.join(' ');
   }
 
   onStripeOrderChange(stripes, sortable, event) {
-    let newStripes = this.state.stripes.slice()
-    const stripeToMove = newStripes.splice(event.oldIndex, 1)[0];
-    newStripes.splice(event.newIndex, 0, stripeToMove);
-    this.setState({
-      stripes: newStripes,
-      currentStripeIdx: event.newIndex,
+    const oldIndex = event.oldIndex;
+    const newIndex = event.newIndex;
+    store.dispatch({
+      type: STRIPE_UPDATE_ORDER,
+      oldIndex,
+      newIndex
     });
   }
 
   onStripeClick(event) {
-    const id = Number(event.currentTarget.dataset.idx);
-    this.setState({currentStripeIdx: id})
+    const idx = Number(event.currentTarget.dataset.idx);
+    store.dispatch({
+      type: CURRENT_STRIPE_UPDATE,
+      index: idx
+    });
   }
 
   removeStripe(event, idx) {
     event.stopPropagation();
-    let newIndex = idx;
-    if (this.state.stripes.length === 1) {
-      return;
-    }
-    if (this.state.currentStripeIdx === idx) {
-      newIndex -= 1;
-      if (newIndex <= 0) {
-        newIndex = 0;
-      }
-    }
-    let newStripes = this.state.stripes.slice();
-    newStripes.splice(idx, 1);
-    this.setState({
-      stripes: newStripes,
-      currentStripeIdx: 0,
+    store.dispatch({
+      type: STRIPE_REMOVE,
+      index: idx,
     });
   }
 
   onNewStripe() {
-    const newStripe = Object.assign({}, this.state.stripes[this.state.currentStripeIdx]);
-    newStripe.id = uniqueId();
-    let newStripes = this.state.stripes.slice();
-    newStripes.unshift(newStripe);
-    this.setState({
-      currentStripeIdx: 0,
-      stripes: newStripes
+    store.dispatch({
+      type: STRIPE_DUPLICATE,
+      index: this.props.currentStripeIdx,
     });
   }
 
@@ -82,10 +62,11 @@ class App extends React.Component {
     const target = event.currentTarget;
     const value = Number(target.value);
     const name = target.name;
-    const newStripes = this.state.stripes.slice()
-    newStripes[this.state.currentStripeIdx][name] = value;
-    this.setState({
-      stripes: newStripes
+    store.dispatch({
+      type: STRIPE_UPDATE,
+      index: this.props.currentStripeIdx,
+      name,
+      value
     });
   }
 
@@ -94,18 +75,20 @@ class App extends React.Component {
     const target = event.currentTarget;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
-    const newStripes = this.state.stripes.slice()
-    newStripes[idx][name] = value;
-    this.setState({
-      stripes: newStripes
+    store.dispatch({
+      type: STRIPE_UPDATE,
+      index: idx,
+      name,
+      value
     });
   }
 
   updateRotation(degrees) {
-    const newStripes = this.state.stripes.slice()
-    newStripes[this.state.currentStripeIdx].rotation = degrees;
-    this.setState({
-      stripes: newStripes
+    store.dispatch({
+      type: STRIPE_UPDATE,
+      index: this.props.currentStripeIdx,
+      name: 'rotation',
+      value: degrees
     });
   }
 
@@ -116,31 +99,34 @@ class App extends React.Component {
     } else {
       value = color;
     }
-    this.setState({
-      bg: value
-    })
+    store.dispatch({
+      type: BG_UPDATE,
+      color: value
+    });
   }
 
   updateColor(name, color, idx) {
-    const newStripes = this.state.stripes.slice()
-    newStripes[idx][name] = color;
-    this.setState({
-      stripes: newStripes
+    store.dispatch({
+      type: STRIPE_UPDATE,
+      index: idx,
+      name,
+      value: color
     });
   }
 
   onRotationChange(event) {
     const target = event.currentTarget;
     const value = Number(target.value);
-    const newStripes = this.state.stripes.slice()
-    newStripes[this.state.currentStripeIdx].rotation = value;
-    this.setState({
-      stripes: newStripes
+    store.dispatch({
+      type: STRIPE_UPDATE,
+      index: this.props.currentStripeIdx,
+      name: 'rotation',
+      value
     });
   }
 
   stateFiltered() {
-    const visibleStripes = this.state.stripes.filter(stripe => (stripe.visible === true));
+    const visibleStripes = this.props.stripes.filter(stripe => (stripe.visible === true));
     const stripesCleaned = visibleStripes.map((stripe) => {
       const clone = Object.assign({}, stripe);
       delete clone.visible;
@@ -149,12 +135,12 @@ class App extends React.Component {
     });
     return {
       stripes: stripesCleaned,
-      bg: this.state.bg,
+      bg: this.props.bg,
     };
   }
 
   render() {
-    const stripes = this.state.stripes.map((stripe, idx) => {
+    const stripes = this.props.stripes.map((stripe, idx) => {
       return (
         <li
           key={stripe.id}
@@ -171,7 +157,7 @@ class App extends React.Component {
         </li>
       )
     })
-    const currentStripe = this.state.stripes[this.state.currentStripeIdx];
+    const currentStripe = this.props.stripes[this.props.currentStripeIdx];
 
     return (
       <div className="app">
@@ -223,12 +209,12 @@ class App extends React.Component {
                   <ColorPicker
                     name='color'
                     value={currentStripe.color}
-                    onChange={(e) => this.onInputChange(e, this.state.currentStripeIdx)}
-                    updateColor={(name, color) => this.updateColor(name, color, this.state.currentStripeIdx)}
+                    onChange={(e) => this.onInputChange(e, this.props.currentStripeIdx)}
+                    updateColor={(name, color) => this.updateColor(name, color, this.props.currentStripeIdx)}
                   />
                   <label className="plaid__label controls__label" title="Stripes go vertically and horizontally">
                     Plaid
-                    <input className="plaid__check" type="checkbox" name="plaid" checked={currentStripe.plaid} onChange={(e) => this.onInputChange(e, this.state.currentStripeIdx)} />
+                    <input className="plaid__check" type="checkbox" name="plaid" checked={currentStripe.plaid} onChange={(e) => this.onInputChange(e, this.props.currentStripeIdx)} />
                   </label>
                 </div>
               </div>
@@ -278,7 +264,7 @@ class App extends React.Component {
             <section className="background-settings">
               <ColorPicker
                 name="Background Color"
-                value={this.state.bg}
+                value={this.props.bg}
                 top={true}
                 onChange={(e) => this.updateBackgroundColor(e)}
                 updateColor={(name, color) => this.updateBackgroundColor(null, color)}
@@ -310,10 +296,118 @@ function preparePatternData(data) {
   return newData;
 }
 
+const PATTERN_DEFAULT = {
+  stripes: [
+    {
+      color: '#a03ad6',
+      rotation: 200,
+      opacity: 50,
+      mode: 'plaid',
+      width: 10,
+      gap: 10,
+      offset: 0,
+    },
+    {
+      color: '#FFB4D6',
+      rotation: 45,
+      opacity: 80,
+      mode: 'normal',
+      width: 30,
+      gap: 10,
+      offset: 0,
+    },
+  ],
+  bg: '#ffffff',
+};
+const STATE_DEFAULT = {
+  currentStripeIdx: 0,
+};
 
-const data = preparePatternData(window.pattern)
+const patternData = window.pattern || PATTERN_DEFAULT;
+const patternDataPrepared = preparePatternData(patternData);
+const initialState = Object.assign({}, STATE_DEFAULT, patternDataPrepared);
 
-ReactDOM.render(
-  <App pattern={data}/>,
-  document.getElementById('root')
-);
+const STRIPE_UPDATE_ORDER = 'STRIPE_UPDATE_ORDER';
+const STRIPE_UPDATE = 'STRIPE_UPDATE';
+const STRIPE_DUPLICATE = 'STRIPE_DUPLICATE';
+const STRIPE_REMOVE = 'STRIPE_REMOVE';
+const BG_UPDATE = 'BG_UPDATE';
+const CURRENT_STRIPE_UPDATE = 'CURRENT_STRIPE_UPDATE';
+
+const stripesHandler = (stripes = initialState.stripes, action) => {
+  let newStripes;
+  let newStripe;
+  switch (action.type) {
+    case STRIPE_UPDATE_ORDER:
+      newStripes = stripes.slice();
+      const stripeToMove = newStripes.splice(action.oldIndex, 1)[0];
+      newStripes.splice(action.newIndex, 0, stripeToMove);
+      return newStripes;
+
+    case STRIPE_DUPLICATE:
+      newStripes = stripes.slice();
+      newStripe = Object.assign({}, newStripes[action.index]);
+      newStripe.id = uniqueId();
+      newStripes.unshift(newStripe);
+      return newStripes;
+
+    case STRIPE_UPDATE:
+      newStripes = stripes.slice();
+      newStripes[action.index][action.name] = action.value;
+      return newStripes;
+
+    case STRIPE_REMOVE:
+      newStripes = stripes.slice();
+      if (newStripes.length >= 1) {
+        newStripes.splice(action.index, 1);
+      }
+      return newStripes;
+
+    default:
+      return stripes;
+  }
+}
+const bgHandler = (bg = initialState.bg, action) => {
+  switch (action.type) {
+    case BG_UPDATE:
+      return action.color;
+    default:
+      return bg;
+  }
+}
+const currentStripeIdxHandler = (currentStripeIdx = initialState.currentStripeIdx, action) => {
+  switch (action.type) {
+    case CURRENT_STRIPE_UPDATE:
+      return action.index;
+    case STRIPE_DUPLICATE:
+      return 0;
+    case STRIPE_REMOVE:
+      if (currentStripeIdx === action.index) {
+        currentStripeIdx -= 1;
+        if (currentStripeIdx < 0) {
+          currentStripeIdx = 0;
+        }
+      }
+      return currentStripeIdx;
+    default:
+      return currentStripeIdx;
+  }
+}
+
+const rootReducer = combineReducers({
+  stripes: stripesHandler,
+  bg: bgHandler,
+  currentStripeIdx: currentStripeIdxHandler
+});
+
+const store = createStore(rootReducer, initialState);
+
+function renderApp() {
+  ReactDOM.render(
+    <App {...store.getState()} />,
+    document.getElementById('root')
+  );
+}
+
+store.subscribe(renderApp);
+renderApp();
