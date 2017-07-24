@@ -14,13 +14,13 @@ export default class RotationInput extends React.Component {
   componentDidMount() {
     this.rCtx.translate(this.rCenter, this.rCenter);
     this.setRotation(this.props.value);
-    this.rotator.addEventListener('mousedown', this.onPress.bind(this), false);
+    this.rotator.addEventListener('mousedown', this.onPress.bind(this));
   }
   componentWillUnmount() {
-    this.rotator.removeEventListener('mousedown', this.onPress, false);
-    document.removeEventListener('mousemove', this.dragRotation, false);
+    this.rotator.removeEventListener('mousedown', this.onPress);
+    document.removeEventListener('mousemove', this.dragRotation);
     // I think this is not working
-    document.removeEventListener('mouseup', this.onRelease, false);
+    document.removeEventListener('mouseup', this.onRelease);
   }
   componentDidUpdate() {
     this.setRotation(this.props.value);
@@ -35,7 +35,7 @@ export default class RotationInput extends React.Component {
     event.preventDefault();
     const dragRotation = this.dragRotation.bind(this)
     document.addEventListener('mousemove', dragRotation, false);
-    document.addEventListener('mouseup', this.onRelease.bind(this, dragRotation), false);
+    document.addEventListener('mouseup', this.onRelease.bind(this, dragRotation));
     this.dragRotation(event);
   }
   dragRotation(event) {

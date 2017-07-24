@@ -20,7 +20,7 @@ export default class PatternizerPreview extends React.Component {
     window.addEventListener('resize', this.onResize.bind(this));
   }
   componentWillUnmount() {
-    window.removeEventListener('resize', this.onResize.bind(this));
+    window.removeEventListener('resize', this.onResize);
   }
   componentDidUpdate() {
     this.renderPattern();
