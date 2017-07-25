@@ -27,14 +27,6 @@ class App extends React.Component {
     return classes.join(' ');
   }
 
-  onInputChange(event, idx) {
-    event.stopPropagation();
-    const target = event.currentTarget;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
-    const name = target.name;
-    this.props.stripeUpdate(idx, name, value);
-  }
-
   stateFiltered() {
     const visibleStripes = this.props.stripes.filter(stripe => (stripe.visible === true));
     const stripesCleaned = visibleStripes.map((stripe) => {
@@ -59,7 +51,13 @@ class App extends React.Component {
           className={this.getStripeClasses(stripe, idx)}
         >
           <label className="stripe__visible-label">
-            <input className="stripe__visible-input" type="checkbox" name="visible" checked={stripe.visible} onChange={(e) => this.onInputChange(e, idx)}/>
+            <input
+              className="stripe__visible-input"
+              type="checkbox"
+              name="visible"
+              checked={stripe.visible}
+              onChange={(e) => this.props.stripeUpdate(idx, e.currentTarget.name, e.currentTarget.checked)}
+            />
             <div className="stripe__visible-box"></div>
           </label>
           <div className="stripes__item-color" style={{backgroundColor: stripe.color}}></div>
@@ -126,12 +124,17 @@ class App extends React.Component {
                   <ColorPicker
                     name='color'
                     value={currentStripe.color}
-                    onChange={(e) => this.onInputChange(e, this.props.currentStripeIdx)}
+                    onChange={(e) => this.props.stripeUpdate(this.props.currentStripeIdx, e.currentTarget.name, e.currentTarget.value)}
                     updateColor={(name, color) => this.props.stripeUpdate(this.props.currentStripeIdx, name, color)}
                   />
                   <label className="plaid__label controls__label" title="Stripes go vertically and horizontally">
                     Plaid
-                    <input className="plaid__check" type="checkbox" name="plaid" checked={currentStripe.plaid} onChange={(e) => this.onInputChange(e, this.props.currentStripeIdx)} />
+                    <input
+                    className="plaid__check"
+                    type="checkbox"
+                    name="plaid"
+                    checked={currentStripe.plaid}
+                    onChange={(e) => this.props.stripeUpdate(this.props.currentStripeIdx, e.currentTarget.name, e.currentTarget.checked)} />
                   </label>
                 </div>
               </div>
