@@ -1,7 +1,7 @@
 import {actions, rootReducer, getInitialState} from '../reducers.js';
 import uniqueId from 'lodash/uniqueId';
 
-describe('getInitialState', () =>{
+describe('getInitialState', () => {
 
   it('with no args creates deafult state', () => {
     const state = getInitialState();
@@ -45,11 +45,11 @@ describe('getInitialState', () =>{
 })
 
 describe('rootReducer', () => {
+  const defaultState = getInitialState();
 
   describe('bgHandler', () => {
 
     it('returns default state with undefined', () => {
-      const defaultState = getInitialState();
       const updatedState = rootReducer({}, {})
       expect(updatedState.bg).toEqual(defaultState.bg)
     })
@@ -67,7 +67,6 @@ describe('rootReducer', () => {
   describe('currentStripeIdxHandler', () => {
 
     it('returns default state with undefined', () => {
-      const defaultState = getInitialState();
       const updatedState = rootReducer({}, {})
       expect(updatedState.currentStripeIdx).toEqual(defaultState.currentStripeIdx)
     })
@@ -118,6 +117,19 @@ describe('rootReducer', () => {
   })
 
   describe('stripesHandler', () => {
+
+    it('returns default state with undefined', () => {
+      const updatedState = rootReducer({}, {})
+      let updatedStripesWithoutId = updatedState.stripes.map((stripe) => {
+        delete stripe.id;
+        return stripe;
+      })
+      let defaultStripesWithoutId = defaultState.stripes.map((stripe) => {
+        delete stripe.id;
+        return stripe;
+      })
+      expect(updatedStripesWithoutId).toEqual(defaultStripesWithoutId)
+    })
 
     it('STRIPE_UPDATE_ORDER reorders stripes', () => {
       const action = {

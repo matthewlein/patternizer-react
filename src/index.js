@@ -17,7 +17,7 @@ import logo from './images/logo.svg';
 class App extends React.Component {
 
   getStripeClasses(stripe, idx) {
-    const classes = ['stripes__item'];
+    const classes = [];
     if (idx === this.props.currentStripeIdx) {
       classes.push('stripes__item--active');
     }
@@ -48,7 +48,7 @@ class App extends React.Component {
           key={stripe.id}
           data-idx={idx}
           onClick={() => this.props.currentStripeUpdate(idx)}
-          className={this.getStripeClasses(stripe, idx)}
+          className={`stripes__item ${this.getStripeClasses(stripe, idx)}`}
         >
           <label className="stripe__visible-label">
             <input
